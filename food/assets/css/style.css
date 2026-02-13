@@ -141,3 +141,42 @@ ul { list-style: none; }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
     .admin-body .product-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important; }
 }
+
+/* =========================================
+   CATEGORY FILTER STYLES
+   ========================================= */
+
+.category-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.category-scroll::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
+
+.cat-pill {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: white;
+    color: #666;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    transition: 0.2s;
+}
+
+.cat-pill.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 4px 10px rgba(192, 57, 43, 0.3);
+}
+
+.cat-pill:hover {
+    transform: translateY(-2px);
+}

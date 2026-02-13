@@ -1,6 +1,6 @@
 <?php
 $db_dir = __DIR__ . '/database';
-$db_file = $db_dir . '/foodstore.sqlite'; // Ganti nama DB biar fresh
+$db_file = $db_dir . '/foodstore.sqlite';
 
 if (!is_dir($db_dir)) @mkdir($db_dir, 0777, true);
 
@@ -17,11 +17,13 @@ try {
         password TEXT
     )");
 
-    // Tabel Menu Makanan
+    // Tabel Produk (Tambah Kolom Category)
     $pdo->exec("CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         price REAL,
+        stock INTEGER DEFAULT 0,
+        category TEXT, -- Kolom Baru
         description TEXT,
         image TEXT
     )");

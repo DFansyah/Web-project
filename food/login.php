@@ -3,8 +3,9 @@ ob_start();
 session_start();
 require 'db.php';
 
-if (isset($_SESSION['user_id']) || isset($_SESSION['admin_logged_in'])) {
-    header("Location: index.php"); exit;
+// Jika sudah login admin, langsung ke admin.php
+if (isset($_SESSION['admin_logged_in'])) {
+    header("Location: admin.php"); exit;
 }
 
 $msg = '';
@@ -17,21 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($input === 'admin' && $pass === 'admin123') {
         $_SESSION['admin_logged_in'] = true;
         header("Location: admin.php"); exit;
+    } else {
+        $msg = "Username atau Password salah!";
     }
-
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM customers WHERE email = ? OR name = ?");
-        $stmt->execute([$input]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($pass, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            header("Location: index.php"); exit;
-        } else {
-            $msg = "Email tidak ditemukan atau Password salah!";
-        }
-    } catch (PDOException $e) { $msg = "Error DB."; }
 }
 ?>
 <!DOCTYPE html>
@@ -39,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - Foodies</title>
+    <title>Masuk Admin - APHPMART</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
@@ -48,8 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="auth-container">
         <div class="auth-header">
-            <i class="fas fa-utensils"></i> <h2>Selamat Datang</h2>
-            <p>Silakan masuk untuk memesan makanan.</p>
+            <i class="fas fa-user-shield"></i>
+            <h2>APHPMART</h2>
+            <p>Masuk sebagai Admin</p>
         </div>
 
         <?php if($msg): ?>
@@ -60,20 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <form method="POST">
             <div class="input-group">
-                <input type="text" name="input" placeholder="Email Kamu" required>
-                <i class="fas fa-envelope"></i>
+                <input type="text" name="input" placeholder="Username Admin" required>
+                <i class="fas fa-user"></i>
             </div>
             <div class="input-group">
                 <input type="password" name="password" placeholder="Password" required>
                 <i class="fas fa-lock"></i>
             </div>
-            <button type="submit" class="btn-auth">Masuk Sekarang</button>
+            <button type="submit" class="btn-auth">Masuk</button>
         </form>
 
         <div class="auth-footer">
-            Belum punya akun? <a href="register.php">Daftar Disini</a>
             <div style="margin-top:15px;">
-                <a href="index.php" style="color:#999; font-weight:400;">Kembali ke Menu</a>
+                <a href="index.php" style="color:#999; font-weight:400;">Kembali ke Beranda</a>
             </div>
         </div>
     </div>

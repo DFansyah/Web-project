@@ -8,12 +8,23 @@ $p = $stmt->fetch();
 if(!$p) { header("Location: index.php"); exit; }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
+    if ($p['stock'] <= 0) {
+        // Cegah jika stok habis tapi dipaksa post
+        header("Location: product.php?id=$id"); exit;
+    }
+
+    if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
+    
+    $qty = (int)$_POST['quantity'];
+    // Validasi agar tidak pesan melebihi stok
+    if ($qty > $p['stock']) $qty = $p['stock'];
+
     $_SESSION['cart'][] = [
         'id' => $p['id'],
         'name' => $p['name'],
         'price' => $p['price'],
-        'qty' => (int)$_POST['quantity'],
-        'note' => $_POST['note'], // Ganti Size jadi Note
+        'qty' => $qty,
+        'note' => $_POST['note'],
         'image' => $p['image']
     ];
     header("Location: cart.php"); exit;
@@ -33,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
 
     <header class="top-header">
         <a href="index.php"><i class="fas fa-arrow-left"></i></a>
-        <div class="brand-logo">DETAIL<b>MENU</b></div>
+        <div class="brand-logo">DETAIL<b>PRODUK</b></div>
         <a href="cart.php"><i class="fas fa-shopping-basket"></i></a>
     </header>
 
@@ -44,23 +55,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
 
         <h1 class="product-detail-title"><?php echo htmlspecialchars($p['name']); ?></h1>
         <div class="product-detail-price">Rp <?php echo number_format($p['price'],0,',','.'); ?></div>
+        
         <p class="product-detail-desc"><?php echo nl2br(htmlspecialchars($p['description'])); ?></p>
         
-        <form method="POST" style="background:#f9f9f9; padding:20px; border-radius:15px;">
-            <div style="margin-bottom: 15px;">
-                <label style="font-weight:600; display:block; margin-bottom:5px;">Catatan (Opsional)</label>
-                <input type="text" name="note" placeholder="Contoh: Pedas, Jangan pakai sayur..." style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px;">
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight:600; display:block; margin-bottom:5px;">Jumlah Porsi</label>
-                <input type="number" name="quantity" value="1" min="1" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px;">
-            </div>
+        <div style="margin-bottom: 20px; padding: 10px; background: #f0f2f5; border-radius: 8px; color: var(--text);">
+            <i class="fas fa-boxes" style="color: var(--primary);"></i> Stok Produk: 
+            <?php if($p['stock'] > 0): ?>
+                <b><?php echo $p['stock']; ?> tersedia</b>
+            <?php else: ?>
+                <b style="color: var(--danger);">HABIS</b>
+            <?php endif; ?>
+        </div>
 
-            <button type="submit" name="add_to_cart" class="btn-primary">
-                <i class="fas fa-plus-circle"></i> Tambah ke Pesanan
-            </button>
-        </form>
+        <?php if($p['stock'] > 0): ?>
+            <form method="POST" style="background:#f9f9f9; padding:20px; border-radius:15px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight:600; display:block; margin-bottom:5px;">Catatan (Opsional)</label>
+                    <input type="text" name="note" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight:600; display:block; margin-bottom:5px;">Jumlah</label>
+                    <input type="number" name="quantity" value="1" min="1" max="<?php echo $p['stock']; ?>" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px;">
+                </div>
+
+                <button type="submit" name="add_to_cart" class="btn-primary" style="margin-bottom: 10px; background: var(--accent);">
+                    <i class="fas fa-shopping-cart"></i> Tambah ke Keranjang
+                </button>
+                
+                <button type="submit" name="add_to_cart" class="btn-primary">
+                    <i class="fas fa-plus-circle"></i> Tambah ke Pesanan
+                </button>
+            </form>
+        <?php else: ?>
+            <div style="background: #ffecec; color: var(--danger); padding: 20px; border-radius: 15px; text-align: center; font-weight: 700;">
+                <i class="fas fa-times-circle" style="font-size: 2rem; margin-bottom: 10px;"></i><br>
+                Maaf, produk ini sedang habis.
+            </div>
+        <?php endif; ?>
+
     </main>
 </body>
 </html>
